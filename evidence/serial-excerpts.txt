@@ -1,0 +1,94 @@
+RK3576 AFC03 boot recovery — 2026-09-28 (UTC+8)
+
+These are selected lines from multiple local logs, NOT one continuous log.
+Source filenames and source line ranges are preserved for local verification.
+Private network identifiers, account paths, command echoes and encoded scripts
+are omitted. Bracketed annotations below are editorial, not device output.
+The original logs and firmware images are NOT distributed in this repository.
+
+[1. Initial failure]
+Source: rk-uart-20260928-200641-347.log, lines 160, 162–164
+   Verifying Hash Integrity ... sha256 Bad hash: cc46e76cbc6e83fc59cae4ce6040af8e5b7713f263bf08a25c9eb575e3f0763c
+Bad hash value for 'hash' hash node in 'kernel' image node
+Bad Data Hash
+ERROR: can't get kernel image!
+
+[2. Correcting the read offset by one byte recovers the expected kernel hash]
+Source: uboot-inspect-20260928-205105-828.log, lines 8–9, 13–14
+crypto_sum sha256 60047800 25efa00
+sha256 for 60047800 ... 62637200 ==> cc46e76cbc6e83fc59cae4ce6040af8e5b7713f263bf08a25c9eb575e3f0763c
+crypto_sum sha256 600477ff 25efa00
+sha256 for 600477ff ... 626371ff ==> dc87193455529b79f1487ad02790fd822f50c9cf5c3dcab7dcd98a1cf28ad592
+
+[3. Direct MMC-read damaged partition hash and two shortened DTBs]
+Source: uboot-inspect-20260928-205400-652.log, lines 3–4, 8–9, 13–14
+crypto_sum sha256 60000800 46fdb
+sha256 for 60000800 ... 600477db ==> 8eace37e748da4f7075c7d1098eb04a0a6002371c9dc62a07892d15551c71a3b
+crypto_sum sha256 626379ff 46fdb
+sha256 for 626379ff ... 6267e9da ==> 8eace37e748da4f7075c7d1098eb04a0a6002371c9dc62a07892d15551c71a3b
+crypto_sum sha256 60000000 4000000
+sha256 for 60000000 ... 64000000 ==> 641383a1418518d6a9eeac4547deca37ce30df7879096c1a54571c54df923bc8
+
+[4. Whole-partition forensic replay; selected JSON fields]
+Source: linux-serial-20260928-211046-860.log, lines 6–9
+  "original_sha256": "faebf16428deb61867f57f17f79b7d27ba0faf9503853284a697aa83e882abec",
+  "current_sha256": "641383a1418518d6a9eeac4547deca37ce30df7879096c1a54571c54df923bc8",
+  "predicted_sha256": "641383a1418518d6a9eeac4547deca37ce30df7879096c1a54571c54df923bc8",
+  "exact_full_partition_match_after_two_bad_edits": true,
+
+[5. Permanent boot-only restoration, after operator approval]
+Source: linux-serial-20260928-211510-986.log, lines 5–13
+BOOT_RESTORE_PREFLIGHT_OK: exact boot partition, verified original, verified separate damaged backup
+{
+  "result": "BOOT_RESTORE_READBACK_VERIFIED",
+  "device": "/dev/mmcblk0p3",
+  "size": 67108864,
+  "before_sha256": "641383a1418518d6a9eeac4547deca37ce30df7879096c1a54571c54df923bc8",
+  "after_sha256": "faebf16428deb61867f57f17f79b7d27ba0faf9503853284a697aa83e882abec",
+  "rootfs_userdata_fpga_written_by_this_script": false
+}
+
+[6. Normal reboot, automatic eMMC FIT boot]
+Source: reboot-verify-20260928-211559-081.log, lines 583, 596, 618
+[First verification belongs to kernel; second belongs to fdt.]
+   Verifying Hash Integrity ... sha256+ OK
+   Verifying Hash Integrity ... sha256+ OK
+Starting kernel ...
+
+[The capture helper stopped here because its root-prompt detector matched an
+earlier shutdown prompt. This is NOT a full continuous Linux boot capture.
+Independent commands in the new Linux instance provide the checks below.]
+
+[7. Independent post-reboot checks]
+Source: linux-serial-20260928-211628-525.log, selected output lines 6–7, 9–12, 18
+[uname -r]
+6.1.99
+[/proc/uptime; seconds]
+24.32 151.54
+[sha256sum /dev/mmcblk0p3]
+faebf16428deb61867f57f17f79b7d27ba0faf9503853284a697aa83e882abec  /dev/mmcblk0p3
+[systemctl is-active ssh lightdm; in that order]
+active
+active
+[HDMI connector status]
+connected
+[systemctl --failed]
+0 loaded units listed.
+
+Source: linux-serial-20260928-211704-593.log, selected output lines 5, 11–14
+[/proc/uptime; seconds]
+60.39 425.23
+[systemctl is-system-running]
+running
+[HDMI connector enabled state]
+enabled
+[/proc/device-tree/pcie@2a210000/status]
+disabled
+[sha256sum /dev/mmcblk0p3]
+faebf16428deb61867f57f17f79b7d27ba0faf9503853284a697aa83e882abec  /dev/mmcblk0p3
+
+[Scope]
+The operator confirmed HDMI picture during the temporary RAM boot.
+The permanent-restore software reboot passed the checks above.
+Power-loss cold boot, all user-file integrity, stable Wi-Fi/SSH connectivity,
+and FPGA PCIe end-to-end operation were not fully accepted in this incident.
