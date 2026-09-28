@@ -1,0 +1,75 @@
+{
+  "schema_version": 1,
+  "case_date": "2026-09-28",
+  "timezone": "UTC+08:00",
+  "platform": "MLK-AFH03-AFC03 / RK3576J / 4 GiB / Linux 6.1.99",
+  "partition": {
+    "name": "boot",
+    "case_device": "/dev/mmcblk0p3",
+    "sector_size_bytes": 512,
+    "start_sector": 32768,
+    "sector_count": 131072,
+    "size_bytes": 67108864,
+    "warning": "Case-specific values; never assume these identify a target on another device."
+  },
+  "sha256": {
+    "damaged_real_full_partition": "641383a1418518d6a9eeac4547deca37ce30df7879096c1a54571c54df923bc8",
+    "original_reconstructed_restored_and_post_reboot": "faebf16428deb61867f57f17f79b7d27ba0faf9503853284a697aa83e882abec",
+    "invalid_usb_export_do_not_flash": "cfd5a0e72fb8579c5002e015b0af81cfcf63496d4824315df5e811b1260e67b5",
+    "shortened_dtb_1_and_2": "8eace37e748da4f7075c7d1098eb04a0a6002371c9dc62a07892d15551c71a3b",
+    "kernel_at_incorrect_declared_offset": "cc46e76cbc6e83fc59cae4ce6040af8e5b7713f263bf08a25c9eb575e3f0763c"
+  },
+  "original_fit_payloads": [
+    {"name": "fdt", "offset_hex": "0x800", "size_bytes": 290780, "sha256": "a30ce31326022e507ba8a4c751a11afc70770a471a6f2d8009641b69815fa3dd", "embedded_sha256_matches": true},
+    {"name": "kernel", "offset_hex": "0x47800", "size_bytes": 39778816, "sha256": "dc87193455529b79f1487ad02790fd822f50c9cf5c3dcab7dcd98a1cf28ad592", "embedded_sha256_matches": true},
+    {"name": "resource", "offset_hex": "0x2637200", "size_bytes": 5713920, "sha256": "65be9c66134d672d3d1de6f7630cf5b0e3bc98c17bb0a53a3c524e7d93a8a0c4", "embedded_sha256_matches": true}
+  ],
+  "dtb_changes": {
+    "node": "/pcie@2a210000",
+    "property": "status",
+    "original_value_offsets_hex": ["0x15074", "0x264c274"],
+    "damaged_value_offsets_hex": ["0x15074", "0x264c273"],
+    "original_property_length": 9,
+    "damaged_property_length": 5,
+    "replaced_original_value_hex": "64697361626c656400",
+    "replacement_bytes_hex": "6f6b617900000000",
+    "physical_shrink_bytes_per_change": 1,
+    "damaged_kernel_actual_offset_hex": "0x477ff",
+    "damaged_resource_actual_offset_hex": "0x26371ff",
+    "exact_full_partition_match_after_two_bad_edits": true,
+    "replay_method": "Apply both property-length and shrinking-value edits in descending original-offset order; retain the original final two physical-partition bytes."
+  },
+  "invalid_usb_export": {
+    "true_prefix_bytes": 16777216,
+    "fill_suffix_bytes": 50331648,
+    "fill_byte_hex": "0xcc",
+    "independent_mmc_read_disagreed_with_fill": true,
+    "scope": "Observed U-Boot rockusb path and transfer chunking, not a universal RKDevTool/Loader/Maskrom limit."
+  },
+  "restoration": {
+    "source": "Pre-fault full boot backup dated 2026-09-24, separately validated on the board",
+    "temporary_ram_boot_payload_hashes_matched_original": true,
+    "operator_confirmed_hdmi_picture_during_temporary_boot": true,
+    "separate_real_damaged_full_backup_verified_before_write": true,
+    "only_boot_partition_written_by_restore_program": true,
+    "full_readback_matched_original_before_reboot": true,
+    "normal_software_reboot_verified": true,
+    "automatic_fit_kernel_and_fdt_hash_checks_passed": true,
+    "post_reboot_partition_sha256_matched_original": true,
+    "post_reboot_system_running": true,
+    "post_reboot_failed_units": 0,
+    "post_reboot_ssh_service": "active",
+    "post_reboot_lightdm_service": "active",
+    "post_reboot_hdmi": "connected/enabled",
+    "restored_pcie_status": "disabled"
+  },
+  "not_established": [
+    "Specific modifying script, operator or exact write time",
+    "Power-loss cold-boot acceptance after permanent restoration",
+    "Integrity of every rootfs/userdata file",
+    "Stable network or end-to-end SSH connectivity after permanent restoration",
+    "FPGA PCIe end-to-end functional acceptance",
+    "Exact source/build identity of the customized board U-Boot"
+  ],
+  "privacy": "Raw logs, firmware, IP/MAC/SSID, credentials, fingerprints and personal paths are excluded."
+}
